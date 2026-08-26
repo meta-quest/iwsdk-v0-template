@@ -8,7 +8,7 @@ A WebXR starter built with the [Immersive Web SDK](https://developers.meta.com/h
 (IWSDK 0.5.3), packaged as a template for [v0](https://v0.app/) and deployable to
 Vercel as a static Vite app.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzjm-meta%2Fiwsdk-v0-template)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmeta-quest%2Fiwsdk-v0-template)
 
 ## What's included
 

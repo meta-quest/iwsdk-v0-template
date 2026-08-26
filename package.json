@@ -6,7 +6,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zjm-meta/iwsdk-v0-template.git"
+    "url": "git+https://github.com/meta-quest/iwsdk-v0-template.git"
   },
   "scripts": {
     "dev": "vite",
