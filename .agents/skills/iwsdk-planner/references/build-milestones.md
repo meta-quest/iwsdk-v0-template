@@ -155,7 +155,7 @@ For each milestone:
    queries + qualify/disqualify subscriptions (never entity arrays), config
    signals + `.peek()` in `update()`, `cleanupFuncs` for every subscription,
    module-scope scratch vectors (no per-frame allocations).
-3. **Typecheck** — `npx tsc --noEmit`. Fix everything; zero-error baseline
+3. **Typecheck** — `npm run typecheck`. Fix everything; zero-error baseline
    makes later breakage attributable.
 4. **Verify** — run this milestone's assertions live (`verification.md` has
    the loop). First milestone verifies the _scaffold before edits_.
@@ -182,7 +182,7 @@ For each milestone:
   working directories often reset between calls) + the path to
   `references/api-reference.md` with the
   instruction to follow its best practices and anti-pattern list + owned
-  files + its milestone's assertions + "run `npx tsc --noEmit` before
+  files + its milestone's assertions + "run `npm run typecheck` before
   returning; do NOT start dev servers or install packages".
 - Sub-agents cannot keep background processes alive — the **main agent owns
   the dev server** (`iwsdk dev up/down`), does all runtime verification, and

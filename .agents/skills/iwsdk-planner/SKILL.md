@@ -264,12 +264,11 @@ Rules:
   verify loop once end-to-end (dev server up, screenshot, XR enter) _before_
   writing gameplay code. A broken baseline poisons every later diagnosis.
 - **The main agent owns the dev server** and everything stateful (`iwsdk dev
-up/down`, ports, browser). Sub-agents write code; they may run `npx tsc
---noEmit` but must not start servers.
+up/down`, ports, browser). Sub-agents write code; they may run `npm run typecheck` but must not start servers.
 - Parallel sub-agents only for genuinely independent modules, each owning a
   disjoint set of files; the main agent owns shared files (`src/index.ts`,
   component registry wiring) and integrates.
-- After each milestone: `npx tsc --noEmit` → verify loop (Phase 6 subset for
+- After each milestone: `npm run typecheck` → verify loop (Phase 6 subset for
   this milestone's assertions) → update Milestone Log in `design/PIPELINE.md`
   (+ commit — confirm once at Phase 5 start, or `[ASSUMED]` in autonomous
   mode; see `references/build-milestones.md`).

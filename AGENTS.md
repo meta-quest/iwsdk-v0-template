@@ -90,7 +90,7 @@ base breaks on deep URLs served through that rewrite.
 
 ## Verify before you claim it works
 
-**Always `npx tsc --noEmit` before testing.** Type errors stop systems
+**Always `npm run typecheck` before testing.** Type errors stop systems
 initialising without necessarily logging anything in the browser.
 
 Then check the right status for the task — these are not interchangeable:

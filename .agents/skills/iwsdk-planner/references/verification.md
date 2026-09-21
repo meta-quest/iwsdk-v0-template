@@ -23,7 +23,7 @@ slow ops (reload, xr enter, animate-to, screenshot).
 ## The Standard Loop
 
 ```bash
-npx tsc --noEmit                     # 0. types clean first — always
+npm run typecheck                     # 0. types clean first — always
 npx @iwsdk/cli dev status                 # 1. already running? if state.running AND
                                      #    state.browserCommandReady are true,
                                      #    REUSE it — never start a second server
