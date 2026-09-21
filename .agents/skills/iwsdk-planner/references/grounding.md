@@ -41,30 +41,30 @@ with a `vite.config.*` and an `@iwsdk/*` dependency — it fails at a monorepo
 root or empty dir). The package `@iwsdk/reference` must be installed
 (generated apps include it; `npm i -D @iwsdk/reference` otherwise). Fresh
 installed scaffolds perform the one-time ~210 MB corpus/model warmup during
-creation; queries then run offline. `npx iwsdk reference status` tells you the
-state. Run `npx iwsdk reference warmup` manually only for an older app, a
+creation; queries then run offline. `npx @iwsdk/cli reference status` tells you the
+state. Run `npx @iwsdk/cli reference warmup` manually only for an older app, a
 `--no-install` scaffold, or recovery from an interrupted initialization.
 
 ```bash
 # Semantic search — start here for each mechanic
-npx iwsdk reference search --input-json '{"query":"throw object with physics velocity","limit":5,"verbosity":1}'
+npx @iwsdk/cli reference search --input-json '{"query":"throw object with physics velocity","limit":5,"verbosity":1}'
 
 # Exact API card once you have a name
-npx iwsdk reference api --input-json '{"name":"PhysicsManipulation"}'
+npx @iwsdk/cli reference api --input-json '{"name":"PhysicsManipulation"}'
 
 # Enumerate what exists (great first call of the phase — cache the output)
-npx iwsdk reference components --input-json '{}'
-npx iwsdk reference systems --input-json '{}'
+npx @iwsdk/cli reference components --input-json '{}'
+npx @iwsdk/cli reference systems --input-json '{}'
 
 # Real usage examples from the SDK/examples
-npx iwsdk reference examples --input-json '{"api_name":"DistanceGrabbable"}'
+npx @iwsdk/cli reference examples --input-json '{"api_name":"DistanceGrabbable"}'
 
 # Who depends on / extends a thing
-npx iwsdk reference dependents --input-json '{"api_name":"GrabSystem"}'
-npx iwsdk reference relationship --input-json '{"type":"extends","target":"System"}'
+npx @iwsdk/cli reference dependents --input-json '{"api_name":"GrabSystem"}'
+npx @iwsdk/cli reference relationship --input-json '{"type":"extends","target":"System"}'
 
 # Pull exact source when the docs disagree
-npx iwsdk reference file --input-json '{"file_path":"packages/core/src/grab/grab-system.ts","source":"iwsdk"}'
+npx @iwsdk/cli reference file --input-json '{"file_path":"packages/core/src/grab/grab-system.ts","source":"iwsdk"}'
 ```
 
 Tips: `verbosity` 0–3 controls how much code comes back (default 3 is
@@ -167,7 +167,7 @@ out (parallel agents must not each trigger a concurrent warmup or the
 10–30 s model load; run one cheap query first to pay the load once).
 
 One research agent per domain actually present in the spec. Each gets: spec
-path, this file's path, the **absolute app-root path** (all `npx iwsdk`
+path, this file's path, the **absolute app-root path** (all `npx @iwsdk/cli`
 commands run from there — sub-agent working directories often reset between
 calls), its domain, and the instruction to _return only_ filled table rows +
 custom-system sketches + citations (file paths / CLI output it based claims

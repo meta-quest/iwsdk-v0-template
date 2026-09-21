@@ -136,7 +136,7 @@ Panel surfaces are single-sided and their front faces local **+Z**. Rotate the l
 yaw, use `atan2(viewerX - panelX, viewerZ - panelZ)` with no extra 180-degree term.
 Verify the authored rotation rather than assuming a missing preview is a loader
 failure. Use
-`npx iwsdk ui render-preview --input-json '{"assetId":"status-panel"}'` for an
+`npx @iwsdk/cli ui render-preview --input-json '{"assetId":"status-panel"}'` for an
 isolated proof, and `scene render-file` for in-scene placement. Both commands reload
 the current same-URL source, so before/after evidence does not require a server
 restart.

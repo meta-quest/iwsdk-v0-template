@@ -12,9 +12,9 @@ if your harness clearly has them connected. The sibling `iwsdk-grab` /
 `iwsdk-ray` / `iwsdk-debug` / `iwsdk-ui` skills cover the same runtime
 operations as focused per-interaction recipes — consistent with this file.
 
-**Ground rules.** Run every `npx iwsdk …` from **inside the app directory**
-(the app must depend on `@iwsdk/cli`; a bare `npx iwsdk` elsewhere resolves
-to an unrelated npm package). One CLI call per shell command — no `&&`
+**Ground rules.** Run every `npx @iwsdk/cli …` from **inside the app directory**
+so it reuses the pinned local `@iwsdk/cli`; running elsewhere may download a
+different scoped release and cause version skew. One CLI call per shell command — no `&&`
 chains between CLI calls; use separate `sleep N` calls for waits. Every
 command prints a JSON envelope `{ok, data|error}` on stdout — parse it and
 check the assertion **before** the next command. Add `--timeout 20000` to
@@ -24,39 +24,39 @@ slow ops (reload, xr enter, animate-to, screenshot).
 
 ```bash
 npx tsc --noEmit                     # 0. types clean first — always
-npx iwsdk dev status                 # 1. already running? if state.running AND
+npx @iwsdk/cli dev status                 # 1. already running? if state.running AND
                                      #    state.browserCommandReady are true,
                                      #    REUSE it — never start a second server
-npx iwsdk dev up --timeout 60000     # 2. only if not running: detached daemon;
+npx @iwsdk/cli dev up --timeout 60000     # 2. only if not running: detached daemon;
                                      #    returns once the browser is command-ready.
                                      #    (`npm run dev` = `iwsdk dev up --open
                                      #    --foreground` — never returns; use it only
                                      #    where your harness manages background
                                      #    processes. NEVER a bare '&'.)
-npx iwsdk ecs systems                # 3. connectivity: returns system list
-npx iwsdk browser reload --timeout 20000   # 4. fresh page state
+npx @iwsdk/cli ecs systems                # 3. connectivity: returns system list
+npx @iwsdk/cli browser reload --timeout 20000   # 4. fresh page state
 sleep 3
-npx iwsdk browser screenshot --output-file design/verify/base.png --timeout 20000
+npx @iwsdk/cli browser screenshot --output-file design/verify/base.png --timeout 20000
                                      # 5. runtime renders? (not black/empty).
                                      #    Browser screenshots are runtime-only and
                                      #    auto-switch away from editor view. Without
                                      #    --output-file the PNG lands in the system
                                      #    temp dir (path in the JSON envelope)
-npx iwsdk xr enter --timeout 20000   # 6. enter emulated XR session
+npx @iwsdk/cli xr enter --timeout 20000   # 6. enter emulated XR session
 sleep 2
-npx iwsdk browser logs --input-json '{"count":30}'
+npx @iwsdk/cli browser logs --input-json '{"count":30}'
                                      # 7. console clean — scan ALL levels (a
                                      #    level filter can miss important errors);
                                      #    fail the gate on any error-looking line
 ```
 
-If `dev up` times out, poll yourself: run `npx iwsdk dev status`, `sleep 5`,
+If `dev up` times out, poll yourself: run `npx @iwsdk/cli dev status`, `sleep 5`,
 repeat up to ~60 s (a shell `until` loop around the _single_ CLI call is fine
 — the no-chaining rule is about chaining different CLI calls), then inspect
-`npx iwsdk dev logs --tail 100`.
+`npx @iwsdk/cli dev logs --tail 100`.
 
 Then per-scenario: discover → simulate → assert. Finish with
-`npx iwsdk dev down` when done for the session.
+`npx @iwsdk/cli dev down` when done for the session.
 
 The dev server owns one managed headed Playwright Chromium window, with IWER enabled
 for XR starters. It starts with the dev server; do not launch a second browser or turn
@@ -66,11 +66,11 @@ for editor evidence and `browser screenshot` for the application runtime.
 ## Discover (after every reload — entity indices are NOT stable)
 
 ```bash
-npx iwsdk ecs find --input-json '{"withComponents":["OneHandGrabbable"]}'
-npx iwsdk ecs query --input-json '{"entityIndex":3}'          # full entity dump
-npx iwsdk scene state --raw                                      # active scene/runtime state
-npx iwsdk ecs components                                       # component registry
-npx iwsdk ecs systems                                          # system registry
+npx @iwsdk/cli ecs find --input-json '{"withComponents":["OneHandGrabbable"]}'
+npx @iwsdk/cli ecs query --input-json '{"entityIndex":3}'          # full entity dump
+npx @iwsdk/cli scene state --raw                                      # active scene/runtime state
+npx @iwsdk/cli ecs components                                       # component registry
+npx @iwsdk/cli ecs systems                                          # system registry
 ```
 
 ## Simulate input (XR emulation cheat sheet)
@@ -80,20 +80,20 @@ Devices: `headset`, `controller-left`, `controller-right`, `hand-left`,
 
 ```bash
 # Aim/move devices
-npx iwsdk xr set-transform --input-json '{"device":"headset","position":{"x":0,"y":1.6,"z":0}}'
-npx iwsdk xr look-at --input-json '{"device":"controller-right","target":{"x":0,"y":1,"z":-2}}'
-npx iwsdk xr animate-to --input-json '{"device":"controller-right","position":{"x":0.2,"y":1.1,"z":-0.4},"duration":0.5}' --timeout 20000
+npx @iwsdk/cli xr set-transform --input-json '{"device":"headset","position":{"x":0,"y":1.6,"z":0}}'
+npx @iwsdk/cli xr look-at --input-json '{"device":"controller-right","target":{"x":0,"y":1,"z":-2}}'
+npx @iwsdk/cli xr animate-to --input-json '{"device":"controller-right","position":{"x":0.2,"y":1.1,"z":-0.4},"duration":0.5}' --timeout 20000
 
 # Buttons — WRONG BUTTON FAILS SILENTLY, know which mechanic uses which:
-npx iwsdk xr set-select-value --input-json '{"device":"controller-right","value":1}'   # press TRIGGER — UI pointerdown or distance-grab engage
-npx iwsdk xr set-select-value --input-json '{"device":"controller-right","value":0}'   # release TRIGGER — UI pointerup or distance-grab release
-npx iwsdk xr set-gamepad-state --input-json '{"device":"controller-right","buttons":[{"index":1,"value":1}]}'  # SQUEEZE — near grab (one/two-hand)
-npx iwsdk xr set-gamepad-state --input-json '{"device":"controller-right","buttons":[{"index":3,"value":1}]}'  # A/X button (jump default)
+npx @iwsdk/cli xr set-select-value --input-json '{"device":"controller-right","value":1}'   # press TRIGGER — UI pointerdown or distance-grab engage
+npx @iwsdk/cli xr set-select-value --input-json '{"device":"controller-right","value":0}'   # release TRIGGER — UI pointerup or distance-grab release
+npx @iwsdk/cli xr set-gamepad-state --input-json '{"device":"controller-right","buttons":[{"index":1,"value":1}]}'  # SQUEEZE — near grab (one/two-hand)
+npx @iwsdk/cli xr set-gamepad-state --input-json '{"device":"controller-right","buttons":[{"index":3,"value":1}]}'  # A/X button (jump default)
 
 # Thumbsticks (axes index 0=X, 1=Y):
-npx iwsdk xr set-gamepad-state --input-json '{"device":"controller-left","axes":[{"index":1,"value":-1}]}'   # slide forward (0 to stop)
-npx iwsdk xr set-gamepad-state --input-json '{"device":"controller-right","axes":[{"index":0,"value":1}]}'   # snap turn — EDGE-TRIGGERED: return to 0 before turning again
-npx iwsdk xr set-gamepad-state --input-json '{"device":"controller-right","axes":[{"index":1,"value":1}]}'   # hold then release to 0 = teleport
+npx @iwsdk/cli xr set-gamepad-state --input-json '{"device":"controller-left","axes":[{"index":1,"value":-1}]}'   # slide forward (0 to stop)
+npx @iwsdk/cli xr set-gamepad-state --input-json '{"device":"controller-right","axes":[{"index":0,"value":1}]}'   # snap turn — EDGE-TRIGGERED: return to 0 before turning again
+npx @iwsdk/cli xr set-gamepad-state --input-json '{"device":"controller-right","axes":[{"index":1,"value":1}]}'   # hold then release to 0 = teleport
 ```
 
 Synthetic gamepad indices for `set-gamepad-state`: 0=trigger, 1=squeeze,
@@ -116,10 +116,10 @@ Pick the right instrument per behavior:
 | looks right                   | `browser screenshot` and actually look at the image                                                                                       |
 
 ```bash
-npx iwsdk ecs snapshot --input-json '{"label":"before"}'
+npx @iwsdk/cli ecs snapshot --input-json '{"label":"before"}'
 # …act…
-npx iwsdk ecs snapshot --input-json '{"label":"after"}'
-npx iwsdk ecs diff --input-json '{"from":"before","to":"after"}'
+npx @iwsdk/cli ecs snapshot --input-json '{"label":"after"}'
+npx @iwsdk/cli ecs diff --input-json '{"from":"before","to":"after"}'
 ```
 
 Only the two most recent snapshot labels are retained.
@@ -163,16 +163,16 @@ Only the two most recent snapshot labels are retained.
 - **Queries and screenshots disagreeing** (state changes you can't explain)
   usually means **two browser tabs** are connected — the relay is
   first-response-wins. Check `dev status` → `connectedClientCount`; if >1,
-  `npx iwsdk dev restart` to converge on one tab.
+  `npx @iwsdk/cli dev restart` to converge on one tab.
 
 ## Recovery ladder (runtime unresponsive / weird)
 
-1. `npx iwsdk xr status` and `npx iwsdk dev status` — what state is it in?
-2. `npx iwsdk browser logs` — crashed app code shows here.
-3. `npx iwsdk browser reload --timeout 20000` — clears bad page state.
-4. `npx iwsdk dev restart` — bad transport/server state.
+1. `npx @iwsdk/cli xr status` and `npx @iwsdk/cli dev status` — what state is it in?
+2. `npx @iwsdk/cli browser logs` — crashed app code shows here.
+3. `npx @iwsdk/cli browser reload --timeout 20000` — clears bad page state.
+4. `npx @iwsdk/cli dev restart` — bad transport/server state.
 5. Re-enter XR (`xr enter`) and re-discover entities after any of the above.
-6. Dev server won't start: check `npx iwsdk dev logs --tail 100`; commonest
+6. Dev server won't start: check `npx @iwsdk/cli dev logs --tail 100`; commonest
    causes are a missing `dev:runtime` script, port conflict from an orphaned
    server (`iwsdk dev down` in that app dir), or Playwright browser revision
    mismatch (`npx playwright@<pinned> install chromium`).

@@ -103,11 +103,11 @@ Probe and record in `design/PIPELINE.md` (Capabilities section):
 4. **Toolchain** — `node --version` (needs >=20.19 <21, >=22.12 <23, or >=24);
    is there an existing IWSDK app here or are we scaffolding fresh?
 5. **IWSDK tooling** — only if an app already exists, and always from its
-   directory (never a bare shell/monorepo root — `npx iwsdk` outside an app
-   resolves to an unrelated npm package): `npx iwsdk status`,
-   `npx iwsdk reference status`. Fresh installed scaffolds initialize this
+   directory so it reuses the pinned local CLI. Running elsewhere may download
+   a different scoped release: `npx @iwsdk/cli status`,
+   `npx @iwsdk/cli reference status`. Fresh installed scaffolds initialize this
    shared cache during creation. If an older/existing app still reports warmup
-   needed and you have network, start `npx iwsdk reference warmup` **in the
+   needed and you have network, start `npx @iwsdk/cli reference warmup` **in the
    background now** (~210 MB download) so it's ready by Phase 3. If it fails, note the
    docs fallback (see `references/grounding.md`). **Scaffolding fresh?**
    Skip these probes, record `iwsdk CLI: pending scaffold`, and rely on the
@@ -157,9 +157,9 @@ project directory exists for every later artifact and tool:
    on, everything lives in the app root. Do the move BEFORE fanning out
    Phase 2/3 agents (or brief them with the final app paths) — agents
    writing to a stale staging path while you move it lose work.
-3. Run the deferred Phase 0 probes (`npx iwsdk status`, `npx iwsdk reference
+3. Run the deferred Phase 0 probes (`npx @iwsdk/cli status`, `npx @iwsdk/cli reference
 status`). Creation initializes the reference cache before returning. Only if
-   status still reports warmup required should you run `npx iwsdk reference
+   status still reports warmup required should you run `npx @iwsdk/cli reference
 warmup` and treat a failure as a scaffold/setup defect.
 4. Do **not** modify app code yet — Phase 5's M0 verifies the untouched
    scaffold. Never scaffold a nested app inside an existing IWSDK app.
@@ -190,7 +190,7 @@ descriptions). Ask for reactions if interactive; else proceed.
 Gate: deck + at least one concept piece exist and match the spec.
 
 Phases 2 and 3 both consume only the spec. They may run **concurrently** only
-when `npx iwsdk reference status` already reports ready. Otherwise, let Phase 2
+when `npx @iwsdk/cli reference status` already reports ready. Otherwise, let Phase 2
 run while warmup finishes, then confirm readiness (or select the documented
 fallback) before launching Phase 3. Both phases must be done before Phase 4.
 
@@ -205,7 +205,7 @@ ladder, domain→API map, TECH_PLAN template). API ground truth:
 
 Procedure:
 
-1. Enforce the reference barrier: confirm `npx iwsdk reference status` is
+1. Enforce the reference barrier: confirm `npx @iwsdk/cli reference status` is
    ready, or record which fallback from `references/grounding.md` will supply
    API evidence. Never fan out grounding agents while warmup is still running.
 2. Derive research domains from the spec (typically: input & interaction,
@@ -213,7 +213,7 @@ Procedure:
    AR-specific surfaces if applicable).
 3. Fan out one research agent per domain (or do them in sequence). Each
    agent: reads the spec + `references/grounding.md`, queries the reference
-   system (`npx iwsdk reference search|api|components|systems|examples`) or
+   system (`npx @iwsdk/cli reference search|api|components|systems|examples`) or
    the documented fallbacks, and returns table rows:
    `mechanic → classification (BUILT-IN | CONFIGURE | CUSTOM) → exact IWSDK
 pieces (components/systems/feature flags) → custom work remaining → risks`.
@@ -336,7 +336,7 @@ checklist (details in `references/api-reference.md`):
    grabbing, spatialUI, sceneUnderstanding…) and are their prerequisites met
    (e.g. locomotion needs collision geometry)?
 2. **Check the reinvention-risk table** — is this already a built-in?
-3. **Ground it** — `npx iwsdk reference search/api/examples` for the pieces
+3. **Ground it** — `npx @iwsdk/cli reference search/api/examples` for the pieces
    you'll touch (protocol in `references/grounding.md`).
 4. **Components** — what data, what Types, tag vs data components?
 5. **Queries & reactivity** — how do systems find entities; qualify/

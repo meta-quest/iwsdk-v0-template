@@ -48,9 +48,9 @@ Run commands from the application directory. Reuse a command-ready session inste
 of starting a second server or browser:
 
 ```bash
-npx iwsdk dev status
-npx iwsdk dev up --timeout 60000
-npx iwsdk ui assets --raw
+npx @iwsdk/cli dev status
+npx @iwsdk/cli dev up --timeout 60000
+npx @iwsdk/cli ui assets --raw
 ```
 
 `dev up` owns the managed headed browser. Do not launch a second Playwright browser,
@@ -61,7 +61,7 @@ enable Vite's independent opener, or implement a custom UIKit renderer.
 Use the editor-backed isolated renderer before debugging scene placement:
 
 ```bash
-npx iwsdk ui render-preview \
+npx @iwsdk/cli ui render-preview \
   --input-json '{"assetId":"welcome-panel","width":800,"height":600}' \
   --output-file artifacts/welcome-panel.png
 ```
@@ -90,10 +90,10 @@ asset drawer. For file authoring, use the same asset-only node contract:
 ```
 
 ```bash
-npx iwsdk scene render-file \
+npx @iwsdk/cli scene render-file \
   --input-json '{"path":"public/scenes/main.iwsdk.scene.json","view":"quarter"}' \
   --output-file artifacts/main-editor.png
-npx iwsdk scene open \
+npx @iwsdk/cli scene open \
   --input-json '{"path":"public/scenes/main.iwsdk.scene.json"}' --raw
 ```
 
@@ -108,7 +108,7 @@ runtime-only and switches the managed workspace to runtime before capturing.
 ## 5. Edit UIKitML
 
 UIKitML is HTML/CSS-shaped, but it is not a browser engine. Before assuming browser
-behavior, use `npx iwsdk reference search` or the connected IWSDK reference tools to
+behavior, use `npx @iwsdk/cli reference search` or the connected IWSDK reference tools to
 confirm supported elements and properties.
 
 Key rules:
