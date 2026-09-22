@@ -137,20 +137,25 @@ the plugin rejects the same options passed to `iwsdkDev()` in `vite.config.ts`.
 | `activation`    | `localhost` | the injected runtime stays inert on any non-localhost hostname   |
 
 The default `activation` is the one that bites in practice: the dev server always
-injects IWER, but a v0 sandbox is served from a generated `*.vusercontent.net`
-hostname, so the runtime loads and then sits inert. This template widens
-`activation` to cover the hostnames a preview actually uses:
+injects IWER, but a v0 preview is served from a generated `*.v0.build` hostname
+(older sandboxes used `*.vusercontent.net`), so the runtime loads and then sits
+inert. This template widens `activation` to cover the hostnames a preview
+actually uses:
 
 ```jsonc
 "dev": {
   "emulator": {
     "device": "metaQuest3",
     "activation": {
-      "source": "^(localhost|127\\.0\\.0\\.1|.*\\.vercel\\.app|.*\\.vusercontent\\.net)$"
+      "source": "^(localhost|127\\.0\\.0\\.1|.*\\.vercel\\.app|.*\\.vusercontent\\.net|.*\\.v0\\.build)$"
     }
   }
 }
 ```
+
+The pattern is matched against `location.hostname` alone — no scheme, port or
+path — so each term is a bare host suffix. v0 has renamed its preview domain
+before; if it happens again, add a term here rather than widening to `.*`.
 
 A regex is an object here (`{ source, flags }`), not a `/.../` string. On a real
 headset IWER steps aside regardless, via the default `userAgentException` of
