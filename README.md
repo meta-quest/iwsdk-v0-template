@@ -1,11 +1,11 @@
 # IWSDK Template for v0
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![IWSDK](https://img.shields.io/badge/IWSDK-0.5.3-6f42c1.svg)](https://developers.meta.com/horizon/documentation/web/webxr-iwsdk-overview)
+[![IWSDK](https://img.shields.io/badge/IWSDK-1.0.0-6f42c1.svg)](https://developers.meta.com/horizon/documentation/web/webxr-iwsdk-overview)
 [![Framework: Vite](https://img.shields.io/badge/Framework-Vite-646cff.svg)](https://vite.dev/)
 
 A WebXR starter built with the [Immersive Web SDK](https://developers.meta.com/horizon/documentation/web/webxr-iwsdk-overview)
-(IWSDK 0.5.3), packaged as a template for [v0](https://v0.app/) and deployable to
+(IWSDK 1.0.0), packaged as a template for [v0](https://v0.app/) and deployable to
 Vercel as a static Vite app.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmeta-quest%2Fiwsdk-v0-template)
@@ -21,6 +21,9 @@ Vercel as a static Vite app.
 - **Manifest-first project layout** — `iwsdk.config.json` is the single authority
   for the active scene, asset catalog, component catalog, XR mode and world
   features.
+- **Hand and gaze tracking** — `iwsdk.config.json` requests the `handTracking`
+  and `gazeTracking` XR features and enables the `gaze` world feature, so both
+  are on in-session without any app code.
 - **XR emulation without a headset** — IWER lets any browser enter an emulated
   Quest 3 session on the dev server, including the v0 sandbox preview. See
   [XR emulation](#xr-emulation) for how it is gated.
@@ -41,21 +44,32 @@ result, then click **Enter XR** to start an emulated immersive session. You can
 start editing the scene by modifying `public/scenes/main.iwsdk.scene.json`, or
 the systems that drive it under `src/`. The page auto-updates as you edit.
 
-`npm run dev` is plain Vite — the mode v0's sandbox and `vercel dev` expect, and
-the one script v0 starts on your behalf. It serves the app and nothing else.
+`npm run dev` is the IWSDK managed dev server (`iwsdk dev restart --foreground`),
+and the one script v0 starts on your behalf. It serves the app the way Vite does
+and additionally hosts the MCP command bridge behind the scene editor and the
+scene/ECS/XR tooling. There is no `--open`, so it does not launch the managed
+browser on boot — the first MCP or CLI command starts it lazily.
 
-For the full IWSDK authoring loop — the managed browser, the scene editor, and
-the MCP command bridge that powers the scene/ECS/XR tooling — use the managed
-server instead:
+A `predev` hook runs `scripts/setup-browser-deps.mjs` first. That script installs
+the system libraries managed Chromium needs inside the Fedora-based v0 sandbox,
+and exits immediately on every other platform.
+
+Two companion scripts drive that server's lifecycle:
 
 ```bash
-npm run dev:managed   # iwsdk dev up --open --foreground
 npm run dev:status
 npm run dev:down
 ```
 
-Run only one of the two at a time: `npm run dev:down` first if a plain Vite
-server already holds the port.
+For plain Vite with none of the managed infrastructure — the mode `vercel dev`
+expects — use the runtime-only script:
+
+```bash
+npm run dev:runtime   # vite
+```
+
+Run only one of the two at a time: `npm run dev:down` first if a managed server
+already holds the port.
 
 Optional one-time setup for the semantic code-reference MCP tools:
 
@@ -89,6 +103,8 @@ public/
   scenes/main.iwsdk.scene.json    composition only — manifest IDs, transforms, components
   ui/*.uikitml                    runtime-loaded panels
   gltf/ audio/ textures/          static assets
+scripts/
+  setup-browser-deps.mjs          predev — managed-browser system libs for the v0 sandbox
 ```
 
 Composition lives in JSON; geometry, materials and URLs live in TypeScript. Scene
@@ -100,7 +116,9 @@ Open the repository in [v0](https://v0.app/) and it runs in a Vercel Sandbox: a
 real Node.js VM with a framework-aware dev server, a terminal and Claude Code
 pre-installed. v0 detects Vite, starts `npm run dev` itself, and proxies the
 result through a generated HTTPS hostname — a secure context, which is what
-WebXR requires.
+WebXR requires. That script starts the managed dev server rather than bare Vite;
+it serves the app on the same port, and its `predev` hook prepares the sandbox
+for the managed browser the agent tooling drives.
 
 To point a fresh chat at your own copy, fork this repository and give v0 the fork
 URL. Agent guidance is already wired up: `AGENTS.md` at the root, path-scoped
@@ -174,8 +192,9 @@ not. Set `injectOnBuild: true` if you want deploys emulated too; the
 - Import Three.js classes from `@iwsdk/core`, never from `three` — a direct
   `three` import creates a duplicate instance and subtle breakage.
 - `@iwsdk/vite-plugin-dev` depends on Playwright, so the first `npm install` in a
-  fresh sandbox downloads Chromium. Set `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` to
-  skip it when you only need to build — CI does exactly that.
+  fresh sandbox downloads Chromium, and `predev` installs the system libraries it
+  needs to launch. Set `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` to skip the download
+  when you only need to build — CI does exactly that.
 - `package-lock.json` is committed, so `npm ci` reproduces the dependency tree
   exactly. Regenerate it with `npm install` whenever you change `package.json`.
 

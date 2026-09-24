@@ -13,7 +13,8 @@
       "mode": "vr",
       "offer": "always",
       "features": {
-        "handTracking": true
+        "handTracking": true,
+        "gazeTracking": true
       }
     },
     "input": {
@@ -37,7 +38,8 @@
       "environmentRaycast": false,
       "spatialUI": {
         "kit": "horizon"
-      }
+      },
+      "gaze": {}
     }
   },
   "dev": {
